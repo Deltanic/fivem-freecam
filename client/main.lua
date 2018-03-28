@@ -30,12 +30,12 @@ local settings = {
 
 --------------------------------------------------------------------------------
 
-function IsFreecamEnabled()
-  return IsCamActive(camera) ~= false
+function IsEnabled()
+  return IsCamActive(camera) == 1
 end
 
-function SetFreecamEnabled(enable)
-  if enable == IsFreecamEnabled() then
+function SetEnabled(enable)
+  if enable == IsEnabled() then
     return
   end
 
@@ -45,9 +45,9 @@ function SetFreecamEnabled(enable)
 
     camera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
 
-    SetCamCoord(camera, pos.x, pos.y, pos.z)
-    SetCamRot(camera, rot.x, rot.y, rot.z)
-    SetCamFov(camera, settings.fov)
+    SetFov(settings.fov)
+    SetPosition(pos.x, pos.y, pos.z)
+    SetRotation(rot.x, rot.y, rot.z)
   else
     DestroyCam(camera)
     ClearFocus()
@@ -57,6 +57,50 @@ function SetFreecamEnabled(enable)
 
   SetPlayerControl(PlayerId(), not enable)
   RenderScriptCams(enable, settings.enableEasing, settings.easingDuration)
+end
+
+--------------------------------------------------------------------------------
+
+function GetMatrix()
+  return GetCamMatrix(camera)
+end
+
+--------------------------------------------------------------------------------
+
+function GetFov()
+  return GetCamFov(camera)
+end
+
+function SetFov(fov)
+  return SetCamFov(camera, fov)
+end
+
+--------------------------------------------------------------------------------
+
+function GetPosition()
+  return GetCamCoord(camera)
+end
+
+function SetPosition(posX, posY, posZ)
+  SetFocusArea(posX, posY, posZ)
+  LockMinimapPosition(posX, posY)
+
+  return SetCamCoord(camera, posX, posY, posZ)
+end
+
+--------------------------------------------------------------------------------
+
+function GetRotation()
+  return GetCamRot(camera)
+end
+
+function SetRotation(rotX, rotY, rotZ)
+  local angle = ToPositiveRotation(rotZ)
+  local pitch = Clamp(rotX, -90.0, 90.0)
+
+  LockMinimapAngle(math.floor(angle))
+
+  return SetCamRot(camera, pitch, rotY, rotZ)
 end
 
 --------------------------------------------------------------------------------
@@ -75,13 +119,13 @@ end
 
 Citizen.CreateThread(function()
   local function CameraLoop()
-    if not IsFreecamEnabled() or IsPauseMenuActive() then
+    if not IsEnabled() or IsPauseMenuActive() then
       return
     end
 
-    local vecX, vecY, vecZ = GetCamMatrix(camera)
-    local pos = GetCamCoord(camera)
-    local rot = GetCamRot(camera)
+    local vecX, vecY = GetMatrix()
+    local pos = GetPosition()
+    local rot = GetRotation()
 
     -- Get speed multiplier for movement
     local speedMultiplier = GetSpeedMultiplier()
@@ -99,30 +143,20 @@ Citizen.CreateThread(function()
     local rotZ = rot.z + (-mouseX * settings.mouseSensitivityX)
     local rotY = 0.0
 
-    -- Clamp camera pitch to avoid the camera going upside down.
-    rotX = Clamp(rotX, -90, 90)
-
     -- Adjust position relative to camera rotation.
     pos = pos + (vecX *  moveAD * speedMultiplier)
     pos = pos + (vecY * -moveWS * speedMultiplier)
 
-    -- Adjust rotation.
+    -- Adjust new rotation
     rot = vector3(rotX, rotY, rotZ)
 
-    -- Update LOD streaming
-    SetFocusArea(pos.x, pos.y, pos.z)
-
     -- Update camera
-    SetCamCoord(camera, pos.x, pos.y, pos.z)
-    SetCamRot(camera, rot.x, rot.y, rot.z)
-
-    -- Update minimap position
-    LockMinimapPosition(pos.x, pos.y)
-    LockMinimapAngle(math.floor(ToPositiveRotation(rot.z)))
+    SetPosition(pos.x, pos.y, pos.z)
+    SetRotation(rot.x, rot.y, rot.z)
 
     -- Trigger an update event. Resources depending on the freecam position can
     -- make use of this event.
-    TriggerEvent('onClientFreecamUpdate', pos.x, pos.y, pos.z, rot.x, rot.y, rot.z)
+    TriggerEvent('freecam:onFreecamUpdate')
   end
 
   while true do
