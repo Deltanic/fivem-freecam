@@ -156,7 +156,7 @@ Citizen.CreateThread(function()
 
     -- Trigger an update event. Resources depending on the freecam position can
     -- make use of this event.
-    TriggerEvent('freecam:onFreecamUpdate')
+    TriggerEvent('freecam:onFreecamUpdate', camera)
   end
 
   while true do
