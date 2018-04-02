@@ -82,6 +82,9 @@ function GetPosition()
 end
 
 function SetPosition(posX, posY, posZ)
+  local interior = GetInteriorAtCoords(posX, posY, posZ)
+
+  LoadInterior(interior)
   SetFocusArea(posX, posY, posZ)
   LockMinimapPosition(posX, posY)
 
