@@ -132,6 +132,7 @@ Citizen.CreateThread(function()
     local rot = GetCamRot(camera)
 
     -- Get speed multiplier for movement
+    local frameMultiplier = GetFrameTime() * 60
     local speedMultiplier = GetSpeedMultiplier()
 
     -- Get mouse input
@@ -148,8 +149,8 @@ Citizen.CreateThread(function()
     local rotY = 0.0
 
     -- Adjust position relative to camera rotation.
-    pos = pos + (vecX *  moveAD * speedMultiplier)
-    pos = pos + (vecY * -moveWS * speedMultiplier)
+    pos = pos + (vecX *  moveAD * frameMultiplier * speedMultiplier)
+    pos = pos + (vecY * -moveWS * frameMultiplier * speedMultiplier)
 
     -- Adjust new rotation
     rot = vector3(rotX, rotY, rotZ)
