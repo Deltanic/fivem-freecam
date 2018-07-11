@@ -61,12 +61,6 @@ end
 
 --------------------------------------------------------------------------------
 
-function GetMatrix()
-  return GetCamMatrix(camera)
-end
-
---------------------------------------------------------------------------------
-
 function GetFov()
   return GetCamFov(camera)
 end
@@ -77,8 +71,15 @@ end
 
 --------------------------------------------------------------------------------
 
+function GetTarget(distance)
+  local _, vecY, _, pos = GetCamMatrix(camera)
+  return { table.unpack(pos + (vecY * distance)) }
+end
+
+--------------------------------------------------------------------------------
+
 function GetPosition()
-  return GetCamCoord(camera)
+  return { table.unpack(GetCamCoord(camera)) }
 end
 
 function SetPosition(posX, posY, posZ)
@@ -94,7 +95,7 @@ end
 --------------------------------------------------------------------------------
 
 function GetRotation()
-  return GetCamRot(camera)
+  return { table.unpack(GetCamRot(camera)) }
 end
 
 function SetRotation(rotX, rotY, rotZ)
@@ -126,9 +127,9 @@ Citizen.CreateThread(function()
       return
     end
 
-    local vecX, vecY = GetMatrix()
-    local pos = GetPosition()
-    local rot = GetRotation()
+    local vecX, vecY = GetCamMatrix(camera)
+    local pos = GetCamCoord(camera)
+    local rot = GetCamRot(camera)
 
     -- Get speed multiplier for movement
     local speedMultiplier = GetSpeedMultiplier()
@@ -159,7 +160,7 @@ Citizen.CreateThread(function()
 
     -- Trigger an update event. Resources depending on the freecam position can
     -- make use of this event.
-    TriggerEvent('freecam:onFreecamUpdate', camera)
+    TriggerEvent('freecam:onFreecamUpdate')
   end
 
   while true do
