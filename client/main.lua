@@ -169,3 +169,12 @@ Citizen.CreateThread(function()
     CameraLoop()
   end
 end)
+
+--------------------------------------------------------------------------------
+
+-- When the resource is stopped, make sure to return the camera to the player.
+AddEventHandler('onResourceStop', function (resourceName)
+  if resourceName == GetCurrentResourceName() then
+    SetEnabled(false)
+  end
+end)
