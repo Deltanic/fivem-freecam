@@ -30,6 +30,10 @@ local settings = {
 
 --------------------------------------------------------------------------------
 
+local isCameraFrozen
+
+--------------------------------------------------------------------------------
+
 function IsEnabled()
   return IsCamActive(camera) == 1
 end
@@ -57,6 +61,16 @@ function SetEnabled(enable)
 
   SetPlayerControl(PlayerId(), not enable)
   RenderScriptCams(enable, settings.enableEasing, settings.easingDuration)
+end
+
+--------------------------------------------------------------------------------
+
+function IsFrozen()
+  return isCameraFrozen
+end
+
+function SetFrozen(frozen)
+  isCameraFrozen = frozen
 end
 
 --------------------------------------------------------------------------------
@@ -127,37 +141,39 @@ Citizen.CreateThread(function()
       return
     end
 
-    local vecX, vecY = GetCamMatrix(camera)
-    local pos = GetCamCoord(camera)
-    local rot = GetCamRot(camera)
+    if not IsFrozen() then
+      local vecX, vecY = GetCamMatrix(camera)
+      local pos = GetCamCoord(camera)
+      local rot = GetCamRot(camera)
 
-    -- Get speed multiplier for movement
-    local frameMultiplier = GetFrameTime() * 60
-    local speedMultiplier = GetSpeedMultiplier()
+      -- Get speed multiplier for movement
+      local frameMultiplier = GetFrameTime() * 60
+      local speedMultiplier = GetSpeedMultiplier()
 
-    -- Get mouse input
-    local mouseX = GetDisabledControlNormal(0, INPUT_LOOK_LR)
-    local mouseY = GetDisabledControlNormal(0, INPUT_LOOK_UD)
+      -- Get mouse input
+      local mouseX = GetDisabledControlNormal(0, INPUT_LOOK_LR)
+      local mouseY = GetDisabledControlNormal(0, INPUT_LOOK_UD)
 
-    -- Get keyboard input
-    local moveWS = GetDisabledControlNormal(0, INPUT_MOVE_UD)
-    local moveAD = GetDisabledControlNormal(0, INPUT_MOVE_LR)
+      -- Get keyboard input
+      local moveWS = GetDisabledControlNormal(0, INPUT_MOVE_UD)
+      local moveAD = GetDisabledControlNormal(0, INPUT_MOVE_LR)
 
-    -- Calculate new rotation.
-    local rotX = rot.x + (-mouseY * settings.mouseSensitivityY)
-    local rotZ = rot.z + (-mouseX * settings.mouseSensitivityX)
-    local rotY = 0.0
+      -- Calculate new rotation.
+      local rotX = rot.x + (-mouseY * settings.mouseSensitivityY)
+      local rotZ = rot.z + (-mouseX * settings.mouseSensitivityX)
+      local rotY = 0.0
 
-    -- Adjust position relative to camera rotation.
-    pos = pos + (vecX *  moveAD * frameMultiplier * speedMultiplier)
-    pos = pos + (vecY * -moveWS * frameMultiplier * speedMultiplier)
+      -- Adjust position relative to camera rotation.
+      pos = pos + (vecX *  moveAD * frameMultiplier * speedMultiplier)
+      pos = pos + (vecY * -moveWS * frameMultiplier * speedMultiplier)
 
-    -- Adjust new rotation
-    rot = vector3(rotX, rotY, rotZ)
+      -- Adjust new rotation
+      rot = vector3(rotX, rotY, rotZ)
 
-    -- Update camera
-    SetPosition(pos.x, pos.y, pos.z)
-    SetRotation(rot.x, rot.y, rot.z)
+      -- Update camera
+      SetPosition(pos.x, pos.y, pos.z)
+      SetRotation(rot.x, rot.y, rot.z)
+    end
 
     -- Trigger an update event. Resources depending on the freecam position can
     -- make use of this event.
