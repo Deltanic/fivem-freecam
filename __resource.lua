@@ -11,8 +11,15 @@ export 'SetFrozen'
 
 export 'GetFov'
 export 'SetFov'
+
 export 'GetTarget'
+
 export 'GetPosition'
 export 'SetPosition'
+
 export 'GetRotation'
 export 'SetRotation'
+
+export 'GetPitch'
+export 'GetRoll'
+export 'GetYaw'

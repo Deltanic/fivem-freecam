@@ -123,6 +123,23 @@ end
 
 --------------------------------------------------------------------------------
 
+function GetPitch()
+  local rot = GetCamRot(camera)
+  return rot.x
+end
+
+function GetRoll()
+  local rot = GetCamRot(camera)
+  return rot.y
+end
+
+function GetYaw()
+  local rot = GetCamRot(camera)
+  return rot.z
+end
+
+--------------------------------------------------------------------------------
+
 local function GetSpeedMultiplier()
   if IsDisabledControlPressed(0, INPUT_SPRINT) then
     return settings.fastMoveMultiplier
