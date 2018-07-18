@@ -113,7 +113,7 @@ function GetRotation()
 end
 
 function SetRotation(rotX, rotY, rotZ)
-  local angle = ToPositiveRotation(rotZ)
+  local angle = rotZ % 360
   local pitch = Clamp(rotX, -90.0, 90.0)
 
   LockMinimapAngle(math.floor(angle))
