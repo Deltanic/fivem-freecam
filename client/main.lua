@@ -3,7 +3,7 @@ local INPUT_CHARACTER_WHEEL = 19
 local INPUT_LOOK_LR = 1
 local INPUT_LOOK_UD = 2
 local INPUT_COVER = 44
-local INPUT_PICKUP = 38
+local INPUT_MULTIPLAYER_INFO = 20
 local INPUT_MOVE_UD = 31
 local INPUT_MOVE_LR = 30
 
@@ -160,12 +160,14 @@ Citizen.CreateThread(function()
 
     if not IsFrozen() then
       local vecX, vecY = GetCamMatrix(camera)
+      local vecZ = vector3(0, 0, 1)
+
       local pos = GetCamCoord(camera)
       local rot = GetCamRot(camera)
 
       -- Get speed multiplier for movement
       local frameMultiplier = GetFrameTime() * 60
-      local speedMultiplier = GetSpeedMultiplier()
+      local speedMultiplier = GetSpeedMultiplier() * frameMultiplier
 
       -- Get mouse input
       local mouseX = GetDisabledControlNormal(0, INPUT_LOOK_LR)
@@ -174,6 +176,7 @@ Citizen.CreateThread(function()
       -- Get keyboard input
       local moveWS = GetDisabledControlNormal(0, INPUT_MOVE_UD)
       local moveAD = GetDisabledControlNormal(0, INPUT_MOVE_LR)
+      local moveQZ = GetDisabledControlNormalBetween(0, INPUT_COVER, INPUT_MULTIPLAYER_INFO)
 
       -- Calculate new rotation.
       local rotX = rot.x + (-mouseY * settings.mouseSensitivityY)
@@ -181,8 +184,9 @@ Citizen.CreateThread(function()
       local rotY = 0.0
 
       -- Adjust position relative to camera rotation.
-      pos = pos + (vecX *  moveAD * frameMultiplier * speedMultiplier)
-      pos = pos + (vecY * -moveWS * frameMultiplier * speedMultiplier)
+      pos = pos + (vecX *  moveAD * speedMultiplier)
+      pos = pos + (vecY * -moveWS * speedMultiplier)
+      pos = pos + (vecZ *  moveQZ * speedMultiplier)
 
       -- Adjust new rotation
       rot = vector3(rotX, rotY, rotZ)
