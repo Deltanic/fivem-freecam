@@ -10,6 +10,12 @@ local INPUT_MOVE_LR = 30
 --------------------------------------------------------------------------------
 
 local camera
+local internalPosition
+local internalRotation
+
+--------------------------------------------------------------------------------
+
+local isFrozen = false
 local settings = {
   --Camera
   fov = 45.0,
@@ -27,10 +33,6 @@ local settings = {
   enableEasing = true,
   easingDuration = 1000
 }
-
---------------------------------------------------------------------------------
-
-local isCameraFrozen
 
 --------------------------------------------------------------------------------
 
@@ -66,11 +68,11 @@ end
 --------------------------------------------------------------------------------
 
 function IsFrozen()
-  return isCameraFrozen
+  return isFrozen
 end
 
 function SetFrozen(frozen)
-  isCameraFrozen = frozen
+  isFrozen = frozen
 end
 
 --------------------------------------------------------------------------------
@@ -86,14 +88,15 @@ end
 --------------------------------------------------------------------------------
 
 function GetTarget(distance)
-  local _, vecY, _, pos = GetCamMatrix(camera)
-  return { table.unpack(pos + (vecY * distance)) }
+  local _, vecY = EulerToMatrix(internalRotation.x, internalRotation.y, internalRotation.z)
+  local target = internalPosition + (vecY * distance)
+  return { table.unpack(target) }
 end
 
 --------------------------------------------------------------------------------
 
 function GetPosition()
-  return { table.unpack(GetCamCoord(camera)) }
+  return { table.unpack(internalPosition) }
 end
 
 function SetPosition(posX, posY, posZ)
@@ -103,13 +106,15 @@ function SetPosition(posX, posY, posZ)
   SetFocusArea(posX, posY, posZ)
   LockMinimapPosition(posX, posY)
 
+  internalPosition = vector3(posX, posY, posZ)
+
   return SetCamCoord(camera, posX, posY, posZ)
 end
 
 --------------------------------------------------------------------------------
 
 function GetRotation()
-  return { table.unpack(GetCamRot(camera)) }
+  return { table.unpack(internalRotation) }
 end
 
 function SetRotation(rotX, rotY, rotZ)
@@ -118,25 +123,16 @@ function SetRotation(rotX, rotY, rotZ)
 
   LockMinimapAngle(math.floor(angle))
 
+  internalRotation = vector3(pitch, rotY, rotZ)
+
   return SetCamRot(camera, pitch, rotY, rotZ)
 end
 
 --------------------------------------------------------------------------------
 
-function GetPitch()
-  local rot = GetCamRot(camera)
-  return rot.x
-end
-
-function GetRoll()
-  local rot = GetCamRot(camera)
-  return rot.y
-end
-
-function GetYaw()
-  local rot = GetCamRot(camera)
-  return rot.z
-end
+function GetPitch() return internalRotation.x end
+function GetRoll()  return internalRotation.y end
+function GetYaw()   return internalRotation.z end
 
 --------------------------------------------------------------------------------
 
