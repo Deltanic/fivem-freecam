@@ -9,13 +9,18 @@ local INPUT_MOVE_LR = 30
 
 --------------------------------------------------------------------------------
 
-local camera
-local internalPosition
-local internalRotation
+local _internal_camera = nil
+local _internal_isFrozen = false
+
+local _internal_pos = nil
+local _internal_rot = nil
+local _internal_fov = nil
+local _internal_vecX = nil
+local _internal_vecY = nil
+local _internal_vecZ = nil
 
 --------------------------------------------------------------------------------
 
-local isFrozen = false
 local settings = {
   --Camera
   fov = 45.0,
@@ -36,12 +41,89 @@ local settings = {
 
 --------------------------------------------------------------------------------
 
-function IsEnabled()
-  return IsCamActive(camera) == 1
+local function IsFreecamFrozen()
+  return _internal_isFrozen
 end
 
-function SetEnabled(enable)
-  if enable == IsEnabled() then
+local function SetFreecamFrozen(frozen)
+  local frozen = frozen == true
+  _internal_isFrozen = frozen
+end
+
+--------------------------------------------------------------------------------
+
+local function GetFreecamPosition()
+  return _internal_pos
+end
+
+local function SetFreecamPosition(x, y, z)
+  local pos = vector3(x, y, z)
+  local int = GetInteriorAtCoords(pos)
+
+  LoadInterior(int)
+  SetFocusArea(pos)
+  LockMinimapPosition(x, y)
+  SetCamCoord(_internal_camera, pos)
+
+  _internal_pos = pos
+end
+
+--------------------------------------------------------------------------------
+
+local function GetFreecamRotation()
+  return _internal_rot
+end
+
+local function SetFreecamRotation(x, y, z)
+  local x = Clamp(x, -90.0, 90.0)
+  local y = y % 360
+  local z = z % 360
+  local rot = vector3(x, y, z)
+  local vecX, vecY, vecZ = EulerToMatrix(x, y, z)
+
+  LockMinimapAngle(math.floor(z))
+  SetCamRot(_internal_camera, rot)
+
+  _internal_rot  = rot
+  _internal_vecX = vecX
+  _internal_vecY = vecY
+  _internal_vecZ = vecZ
+end
+
+--------------------------------------------------------------------------------
+
+local function GetFreecamFov()
+  return _internal_fov
+end
+
+local function SetFreecamFov(fov)
+  local fov = Clamp(fov, 0.0, 90.0)
+  SetCamFov(_internal_camera, fov)
+  _internal_fov = fov
+end
+
+--------------------------------------------------------------------------------
+
+local function GetFreecamMatrix()
+  return _internal_vecX,
+         _internal_vecY,
+         _internal_vecZ,
+         _internal_pos
+end
+
+local function GetFreecamTarget(distance)
+  local target = _internal_pos + (_internal_vecY * distance)
+  return target
+end
+
+--------------------------------------------------------------------------------
+
+local function IsFreecamEnabled()
+  return IsCamActive(_internal_camera) == 1
+end
+
+local function SetFreecamEnabled(enable)
+  if enable == IsFreecamEnabled() then
     return
   end
 
@@ -49,13 +131,13 @@ function SetEnabled(enable)
     local pos = GetGameplayCamCoord()
     local rot = GetGameplayCamRot()
 
-    camera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+    _internal_camera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
 
-    SetFov(settings.fov)
-    SetPosition(pos.x, pos.y, pos.z)
-    SetRotation(rot.x, rot.y, rot.z)
+    SetFreecamFov(settings.fov)
+    SetFreecamPosition(pos.x, pos.y, pos.z)
+    SetFreecamRotation(rot.x, rot.y, rot.z)
   else
-    DestroyCam(camera)
+    DestroyCam(_internal_camera)
     ClearFocus()
     UnlockMinimapPosition()
     UnlockMinimapAngle()
@@ -67,99 +149,45 @@ end
 
 --------------------------------------------------------------------------------
 
-function IsFrozen()
-  return isFrozen
-end
-
-function SetFrozen(frozen)
-  isFrozen = frozen
-end
-
---------------------------------------------------------------------------------
-
-function GetFov()
-  return GetCamFov(camera)
-end
-
-function SetFov(fov)
-  return SetCamFov(camera, fov)
-end
-
---------------------------------------------------------------------------------
-
-function GetTarget(distance)
-  local _, vecY = EulerToMatrix(internalRotation.x, internalRotation.y, internalRotation.z)
-  local target = internalPosition + (vecY * distance)
-  return { table.unpack(target) }
-end
-
---------------------------------------------------------------------------------
-
-function GetPosition()
-  return { table.unpack(internalPosition) }
-end
-
-function SetPosition(posX, posY, posZ)
-  local interior = GetInteriorAtCoords(posX, posY, posZ)
-
-  LoadInterior(interior)
-  SetFocusArea(posX, posY, posZ)
-  LockMinimapPosition(posX, posY)
-
-  internalPosition = vector3(posX, posY, posZ)
-
-  return SetCamCoord(camera, posX, posY, posZ)
-end
-
---------------------------------------------------------------------------------
-
-function GetRotation()
-  return { table.unpack(internalRotation) }
-end
-
-function SetRotation(rotX, rotY, rotZ)
-  local angle = rotZ % 360
-  local pitch = Clamp(rotX, -90.0, 90.0)
-
-  LockMinimapAngle(math.floor(angle))
-
-  internalRotation = vector3(pitch, rotY, rotZ)
-
-  return SetCamRot(camera, pitch, rotY, rotZ)
-end
-
---------------------------------------------------------------------------------
-
-function GetPitch() return internalRotation.x end
-function GetRoll()  return internalRotation.y end
-function GetYaw()   return internalRotation.z end
-
---------------------------------------------------------------------------------
-
-local function GetSpeedMultiplier()
-  if IsDisabledControlPressed(0, INPUT_SPRINT) then
-    return settings.fastMoveMultiplier
-  elseif IsDisabledControlPressed(0, INPUT_CHARACTER_WHEEL) then
-    return settings.slowMoveMultiplier
-  end
-
-  return settings.normalMoveMultiplier
-end
+function IsEnabled()          return IsFreecamEnabled()                           end
+function SetEnabled(enable)   return SetFreecamEnabled(enable)                    end
+function IsFrozen()           return IsFreecamFrozen()                            end
+function SetFrozen(frozen)    return SetFreecamFrozen(frozen)                     end
+function GetFov()             return GetFreecamFov()                              end
+function SetFov(fov)          return SetFreecamFov(fov)                           end
+function GetTarget(distance)  return { table.unpack(GetFreecamTarget(distance)) } end
+function GetPosition()        return { table.unpack(GetFreecamPosition()) }       end
+function SetPosition(x, y, z) return SetFreecamPosition(x, y, z)                  end
+function GetRotation()        return { table.unpack(GetFreecamRotation()) }       end
+function SetRotation(x, y, z) return SetFreecamRotation(x, y, z)                  end
+function GetPitch()           return GetFreecamRotation().x                       end
+function GetRoll()            return GetFreecamRotation().y                       end
+function GetYaw()             return GetFreecamRotation().z                       end
 
 --------------------------------------------------------------------------------
 
 Citizen.CreateThread(function()
+  local function GetSpeedMultiplier()
+    if IsDisabledControlPressed(0, INPUT_SPRINT) then
+      return settings.fastMoveMultiplier
+    elseif IsDisabledControlPressed(0, INPUT_CHARACTER_WHEEL) then
+      return settings.slowMoveMultiplier
+    end
+
+    return settings.normalMoveMultiplier
+  end
+
   local function CameraLoop()
-    if not IsEnabled() or IsPauseMenuActive() then
+    if not IsFreecamEnabled() or IsPauseMenuActive() then
       return
     end
 
-    if not IsFrozen() then
-      local vecX, vecY = GetCamMatrix(camera)
+    if not IsFreecamFrozen() then
+      local vecX, vecY = GetFreecamMatrix()
       local vecZ = vector3(0, 0, 1)
 
-      local pos = GetCamCoord(camera)
-      local rot = GetCamRot(camera)
+      local pos = GetFreecamPosition()
+      local rot = GetFreecamRotation()
 
       -- Get speed multiplier for movement
       local frameMultiplier = GetFrameTime() * 60
@@ -188,8 +216,8 @@ Citizen.CreateThread(function()
       rot = vector3(rotX, rotY, rotZ)
 
       -- Update camera
-      SetPosition(pos.x, pos.y, pos.z)
-      SetRotation(rot.x, rot.y, rot.z)
+      SetFreecamPosition(pos.x, pos.y, pos.z)
+      SetFreecamRotation(rot.x, rot.y, rot.z)
     end
 
     -- Trigger an update event. Resources depending on the freecam position can
