@@ -118,12 +118,12 @@ end
 
 --------------------------------------------------------------------------------
 
-local function IsFreecamEnabled()
+local function IsFreecamActive()
   return IsCamActive(_internal_camera) == 1
 end
 
-local function SetFreecamEnabled(enable)
-  if enable == IsFreecamEnabled() then
+local function SetFreecamActive(active)
+  if active == IsFreecamActive() then
     return
   end
 
@@ -143,14 +143,14 @@ local function SetFreecamEnabled(enable)
     UnlockMinimapAngle()
   end
 
-  SetPlayerControl(PlayerId(), not enable)
-  RenderScriptCams(enable, settings.enableEasing, settings.easingDuration)
+  SetPlayerControl(PlayerId(), not active)
+  RenderScriptCams(active, settings.enableEasing, settings.easingDuration)
 end
 
 --------------------------------------------------------------------------------
 
-function IsEnabled()          return IsFreecamEnabled()                           end
-function SetEnabled(enable)   return SetFreecamEnabled(enable)                    end
+function IsActive()           return IsFreecamActive()                            end
+function SetActive(active)    return SetFreecamActive(active)                     end
 function IsFrozen()           return IsFreecamFrozen()                            end
 function SetFrozen(frozen)    return SetFreecamFrozen(frozen)                     end
 function GetFov()             return GetFreecamFov()                              end
@@ -178,7 +178,7 @@ Citizen.CreateThread(function()
   end
 
   local function CameraLoop()
-    if not IsFreecamEnabled() or IsPauseMenuActive() then
+    if not IsFreecamActive() or IsPauseMenuActive() then
       return
     end
 
@@ -236,6 +236,6 @@ end)
 -- When the resource is stopped, make sure to return the camera to the player.
 AddEventHandler('onResourceStop', function (resourceName)
   if resourceName == GetCurrentResourceName() then
-    SetFreecamEnabled(false)
+    SetFreecamActive(false)
   end
 end)
