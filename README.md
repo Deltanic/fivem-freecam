@@ -53,6 +53,8 @@ Exports
 
 ### IsActive
 ### SetActive
+### GetConfig
+### SetConfig
 ### IsFrozen
 ### SetFrozen
 ### GetFov

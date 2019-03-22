@@ -6,6 +6,9 @@ client_script 'client/main.lua'
 export 'IsEnabled'
 export 'SetEnabled'
 
+export 'GetConfig'
+export 'SetConfig'
+
 export 'IsFrozen'
 export 'SetFrozen'
 

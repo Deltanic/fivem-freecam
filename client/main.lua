@@ -21,7 +21,7 @@ local _internal_vecZ = nil
 
 --------------------------------------------------------------------------------
 
-local settings = {
+local config = {
   --Camera
   fov = 45.0,
 
@@ -38,6 +38,16 @@ local settings = {
   enableEasing = true,
   easingDuration = 1000
 }
+
+--------------------------------------------------------------------------------
+
+local function GetFreecamConfig(key)
+  return config[key]
+end
+
+local function SetFreecamConfig(key, value)
+  config[key] = value
+end
 
 --------------------------------------------------------------------------------
 
@@ -133,7 +143,7 @@ local function SetFreecamActive(active)
 
     _internal_camera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
 
-    SetFreecamFov(settings.fov)
+    SetFreecamFov(config.fov)
     SetFreecamPosition(pos.x, pos.y, pos.z)
     SetFreecamRotation(rot.x, rot.y, rot.z)
   else
@@ -144,13 +154,15 @@ local function SetFreecamActive(active)
   end
 
   SetPlayerControl(PlayerId(), not active)
-  RenderScriptCams(active, settings.enableEasing, settings.easingDuration)
+  RenderScriptCams(active, config.enableEasing, config.easingDuration)
 end
 
 --------------------------------------------------------------------------------
 
 function IsActive()           return IsFreecamActive()                            end
 function SetActive(active)    return SetFreecamActive(active)                     end
+function GetConfig(key)       return GetFreecamConfig(key)                        end
+function SetConfig(key, val)  return SetFreecamConfig(key, val)                   end
 function IsFrozen()           return IsFreecamFrozen()                            end
 function SetFrozen(frozen)    return SetFreecamFrozen(frozen)                     end
 function GetFov()             return GetFreecamFov()                              end
@@ -171,9 +183,9 @@ Citizen.CreateThread(function()
     local fastNormal = GetDisabledControlNormal(0, INPUT_SPRINT)
     local slowNormal = GetDisabledControlNormal(0, INPUT_CHARACTER_WHEEL)
 
-    local baseMultiplier = settings.baseMoveMultiplier
-    local fastMultiplier = settings.fastMoveMultiplier * fastNormal
-    local slowMultiplier = settings.slowMoveMultiplier * slowNormal
+    local baseMultiplier = config.baseMoveMultiplier
+    local fastMultiplier = config.fastMoveMultiplier * fastNormal
+    local slowMultiplier = config.slowMoveMultiplier * slowNormal
 
     return baseMultiplier * fastMultiplier * slowMultiplier
   end
@@ -204,8 +216,8 @@ Citizen.CreateThread(function()
       local moveQZ = GetDisabledControlNormalBetween(0, INPUT_COVER, INPUT_MULTIPLAYER_INFO)
 
       -- Calculate new rotation.
-      local rotX = rot.x + (-mouseY * settings.mouseSensitivityY)
-      local rotZ = rot.z + (-mouseX * settings.mouseSensitivityX)
+      local rotX = rot.x + (-mouseY * config.mouseSensitivityY)
+      local rotZ = rot.z + (-mouseX * config.mouseSensitivityX)
       local rotY = 0.0
 
       -- Adjust position relative to camera rotation.
