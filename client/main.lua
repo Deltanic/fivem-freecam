@@ -30,7 +30,7 @@ local settings = {
   mouseSensitivityY = 5,
 
   -- Movement
-  normalMoveMultiplier = 1,
+  baseMoveMultiplier = 1,
   fastMoveMultiplier = 10,
   slowMoveMultiplier = 0.1,
 
@@ -168,13 +168,14 @@ function GetYaw()             return GetFreecamRotation().z                     
 
 Citizen.CreateThread(function()
   local function GetSpeedMultiplier()
-    if IsDisabledControlPressed(0, INPUT_SPRINT) then
-      return settings.fastMoveMultiplier
-    elseif IsDisabledControlPressed(0, INPUT_CHARACTER_WHEEL) then
-      return settings.slowMoveMultiplier
-    end
+    local fastNormal = GetDisabledControlNormal(0, INPUT_SPRINT)
+    local slowNormal = GetDisabledControlNormal(0, INPUT_CHARACTER_WHEEL)
 
-    return settings.normalMoveMultiplier
+    local baseMultiplier = settings.baseMoveMultiplier
+    local fastMultiplier = settings.fastMoveMultiplier * fastNormal
+    local slowMultiplier = settings.slowMoveMultiplier * slowNormal
+
+    return baseMultiplier * fastMultiplier * slowMultiplier
   end
 
   local function CameraLoop()
