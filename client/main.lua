@@ -137,7 +137,7 @@ local function SetFreecamActive(active)
     return
   end
 
-  if enable then
+  if active then
     local pos = GetGameplayCamCoord()
     local rot = GetGameplayCamRot()
 
@@ -183,11 +183,13 @@ Citizen.CreateThread(function()
     local fastNormal = GetDisabledControlNormal(0, INPUT_SPRINT)
     local slowNormal = GetDisabledControlNormal(0, INPUT_CHARACTER_WHEEL)
 
-    local baseMultiplier = config.baseMoveMultiplier
-    local fastMultiplier = config.fastMoveMultiplier * fastNormal
-    local slowMultiplier = config.slowMoveMultiplier * slowNormal
-
-    return baseMultiplier * fastMultiplier * slowMultiplier
+    if fastNormal > 0 then
+      return config.fastMoveMultiplier * fastNormal
+    elseif slowNormal > 0 then
+      return config.slowMoveMultiplier * slowNormal
+    else
+      return config.baseMoveMultiplier
+    end
   end
 
   local function CameraLoop()
