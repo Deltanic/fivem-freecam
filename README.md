@@ -47,28 +47,168 @@ Modifiers:
 - Shift to move faster
 - Alt to move slower
 
+Configuring
+-----------
+
+The freecam accepts a few configuration values. These can be changed
+programmatically like so:
+
+```lua
+local Freecam = exports.freecam
+Freecam:SetConfig('easingDuration', 2500)
+```
+
+Full list of configuration keys and their default values:
+
+```lua
+local config = {
+  --Camera
+  fov = 45.0,
+
+  -- Mouse
+  mouseSensitivityX = 5,
+  mouseSensitivityY = 5,
+
+  -- Movement
+  baseMoveMultiplier = 1,
+  fastMoveMultiplier = 10,
+  slowMoveMultiplier = 10,
+
+  -- On enable/disable
+  enableEasing = true,
+  easingDuration = 1000
+}
+```
+
+> **Note:** FOV is applied upon entering the freecam. To change the FOV when
+> the camera is already active, use [SetFov](#SetFov).
 
 Exports
 -------
 
 ### IsActive
+Returns wether the freecam is currently active or not.
+
+```
+bool isActive = exports.freecam:IsActive()
+```
+
 ### SetActive
+Enters or exits the freecam.
+
+```
+void exports.freecam:SetActive(bool active)
+```
+
 ### GetConfig
+Returns the value of a configuration key.
+See [Configuring](#configuring) for details.
+
+```
+mixed value = exports.freecam:GetConfig(string key)
+```
+
 ### SetConfig
+Sets the value of a configuration key.
+See [Configuring](#configuring) for details.
+
+```
+void exports.freecam:SetConfig(string key, mixed value)
+```
+
 ### IsFrozen
+Returns wether the freecam position is currently frozen.
+
+```
+bool isFrozen = exports.freecam:IsFrozen()
+```
+
 ### SetFrozen
+Sets the freecam frozen. When frozen, controls do not update the position or
+rotation anymore but [SetPosition](#setposition)/[SetRotation](#setrotation) will.
+
+```
+void exports.freecam:SetFrozen(bool frozen)
+```
+
 ### GetFov
+Returns the field of view of the freecam.
+
+```
+float fov = exports.freecam:GetFov()
+```
+
 ### SetFov
+Sets the field of view of the freecam. This does NOT update the default FOV for
+the freecam. Use [SetConfig](#setconfig) for that.
+
+```
+void exports.freecam:SetFov(float fov)
+```
+
 ### GetTarget
+Returns the position the freecam is looking at from the given distance.
+
+```
+float posX, float posY, float posZ = exports.freecam:GetFov(float distance)
+```
+
 ### GetPosition
+Returns the current position of the freecam.
+Return value may be replaced with a vector3 in the future.
+
+```
+float posX, float posY, float posZ = exports.freecam:GetPosition()
+```
+
 ### SetPosition
+Sets a new position for the freecam.
+
+```
+void exports.freecam:SetPosition(float posX, float posY, float posZ)
+```
+
 ### GetRotation
+Returns the current rotation of the freecam.
+Return value may be replaced with a vector3 in the future.
+
+```
+float rotX, float rotY, float rotZ = exports.freecam:GetRotation()
+```
+
 ### SetRotation
+Sets a new position for the freecam.
+
+```
+void exports.freecam:SetRotation(float rotX, float rotY, float rotZ)
+```
+
 ### GetPitch
+Returns the current pitch (rotX) of the freecam.
+
+```
+float pitch = exports.freecam:GetPitch()
+```
+
 ### GetRoll
+Returns the current roll (rotY) of the freecam.
+
+```
+float roll = exports.freecam:GetRoll()
+```
+
 ### GetYaw
+Returns the current yaw (rotZ) of the freecam.
+
+```
+float yaw = exports.freecam:GetYaw()
+```
 
 Events
 ------
 
 ### freecam:onFreecamUpdate
+
+Called upon every frame render. Calls after any positional or rotational
+updates so anything attached to the freecam stays in sync. No values are
+passed to this event.
