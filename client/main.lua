@@ -32,7 +32,7 @@ local config = {
   -- Movement
   baseMoveMultiplier = 1,
   fastMoveMultiplier = 10,
-  slowMoveMultiplier = 0.1,
+  slowMoveMultiplier = 10,
 
   -- On enable/disable
   enableEasing = true,
@@ -183,13 +183,11 @@ Citizen.CreateThread(function()
     local fastNormal = GetDisabledControlNormal(0, INPUT_SPRINT)
     local slowNormal = GetDisabledControlNormal(0, INPUT_CHARACTER_WHEEL)
 
-    if fastNormal > 0 then
-      return config.fastMoveMultiplier * fastNormal
-    elseif slowNormal > 0 then
-      return config.slowMoveMultiplier * slowNormal
-    else
-      return config.baseMoveMultiplier
-    end
+    local base = config.baseMoveMultiplier
+    local fast = 1 + ((config.fastMoveMultiplier - 1) * fastNormal)
+    local slow = 1 + ((config.slowMoveMultiplier - 1) * slowNormal)
+
+    return base * fast / slow
   end
 
   local function CameraLoop()
