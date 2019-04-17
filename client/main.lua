@@ -165,6 +165,7 @@ function IsFrozen()           return IsFreecamFrozen()           end
 function SetFrozen(frozen)    return SetFreecamFrozen(frozen)    end
 function GetFov()             return GetFreecamFov()             end
 function SetFov(fov)          return SetFreecamFov(fov)          end
+function GetMatrix()          return GetFreecamMatrix()          end
 function GetTarget(distance)  return GetFreecamTarget(distance)  end
 function GetPosition()        return GetFreecamPosition()        end
 function SetPosition(x, y, z) return SetFreecamPosition(x, y, z) end

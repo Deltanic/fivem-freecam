@@ -15,6 +15,7 @@ export 'SetFrozen'
 export 'GetFov'
 export 'SetFov'
 
+export 'GetMatrix'
 export 'GetTarget'
 
 export 'GetPosition'

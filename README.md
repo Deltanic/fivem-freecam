@@ -146,6 +146,13 @@ the freecam. Use [SetConfig](#setconfig) for that.
 void exports.freecam:SetFov(float fov)
 ```
 
+### GetMatrix
+Returns the current view matrix of the freecam.
+
+```
+vector3 vecX, vector3 vecY, vector3 vecZ, vector3 pos = exports.freecam:GetMatrix()
+```
+
 ### GetTarget
 Returns the position the freecam is looking at from the given distance.
 
