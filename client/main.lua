@@ -27,7 +27,7 @@ local controls = {
 
   moveX = INPUT_MOVE_LR,
   moveY = INPUT_MOVE_UD,
-  moveZ = [INPUT_COVER, INPUT_MULTIPLAYER_INFO],
+  moveZ = { INPUT_COVER, INPUT_MULTIPLAYER_INFO },
 
   moveFast = INPUT_SPRINT,
   moveSlow = INPUT_CHARACTER_WHEEL
