@@ -150,36 +150,36 @@ void exports.freecam:SetFov(float fov)
 Returns the position the freecam is looking at from the given distance.
 
 ```
-float posX, float posY, float posZ = exports.freecam:GetFov(float distance)
+vector3 target = exports.freecam:GetTarget(float distance)
 ```
 
 ### GetPosition
 Returns the current position of the freecam.
-Return value may be replaced with a vector3 in the future.
 
 ```
-float posX, float posY, float posZ = exports.freecam:GetPosition()
+vector3 position = exports.freecam:GetPosition()
 ```
 
 ### SetPosition
 Sets a new position for the freecam.
 
 ```
+void exports.freecam:SetPosition(vector3 position)
 void exports.freecam:SetPosition(float posX, float posY, float posZ)
 ```
 
 ### GetRotation
 Returns the current rotation of the freecam.
-Return value may be replaced with a vector3 in the future.
 
 ```
-float rotX, float rotY, float rotZ = exports.freecam:GetRotation()
+vector3 rotation = exports.freecam:GetRotation()
 ```
 
 ### SetRotation
 Sets a new position for the freecam.
 
 ```
+void exports.freecam:SetRotation(vector3 rotation)
 void exports.freecam:SetRotation(float rotX, float rotY, float rotZ)
 ```
 
@@ -207,8 +207,17 @@ float yaw = exports.freecam:GetYaw()
 Events
 ------
 
-### freecam:onFreecamUpdate
+### freecam:onTick
 
-Called upon every frame render. Calls after any positional or rotational
-updates so anything attached to the freecam stays in sync. No values are
-passed to this event.
+Called every tick for as long as the freecam is active. Calls after any
+positional or rotational updates so anything attached to the freecam stays
+in sync. Not called when the freecam is inactive.
+
+No values are passed to this event.
+
+```lua
+local Freecam = exports.freecam
+AddEventHandler('freecam:onTick', function ()
+  -- Gets the current target position of the freecam.
+  local target = Freecam:GetTarget(50)
+end)
