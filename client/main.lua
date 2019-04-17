@@ -159,22 +159,22 @@ end
 
 --------------------------------------------------------------------------------
 
-function IsActive()           return IsFreecamActive()                            end
-function SetActive(active)    return SetFreecamActive(active)                     end
-function GetConfig(key)       return GetFreecamConfig(key)                        end
-function SetConfig(key, val)  return SetFreecamConfig(key, val)                   end
-function IsFrozen()           return IsFreecamFrozen()                            end
-function SetFrozen(frozen)    return SetFreecamFrozen(frozen)                     end
-function GetFov()             return GetFreecamFov()                              end
-function SetFov(fov)          return SetFreecamFov(fov)                           end
-function GetTarget(distance)  return { table.unpack(GetFreecamTarget(distance)) } end
-function GetPosition()        return { table.unpack(GetFreecamPosition()) }       end
-function SetPosition(x, y, z) return SetFreecamPosition(x, y, z)                  end
-function GetRotation()        return { table.unpack(GetFreecamRotation()) }       end
-function SetRotation(x, y, z) return SetFreecamRotation(x, y, z)                  end
-function GetPitch()           return GetFreecamRotation().x                       end
-function GetRoll()            return GetFreecamRotation().y                       end
-function GetYaw()             return GetFreecamRotation().z                       end
+function IsActive()           return IsFreecamActive()           end
+function SetActive(active)    return SetFreecamActive(active)    end
+function GetConfig(key)       return GetFreecamConfig(key)       end
+function SetConfig(key, val)  return SetFreecamConfig(key, val)  end
+function IsFrozen()           return IsFreecamFrozen()           end
+function SetFrozen(frozen)    return SetFreecamFrozen(frozen)    end
+function GetFov()             return GetFreecamFov()             end
+function SetFov(fov)          return SetFreecamFov(fov)          end
+function GetTarget(distance)  return GetFreecamTarget(distance)  end
+function GetPosition()        return GetFreecamPosition()        end
+function SetPosition(x, y, z) return SetFreecamPosition(x, y, z) end
+function GetRotation()        return GetFreecamRotation()        end
+function SetRotation(x, y, z) return SetFreecamRotation(x, y, z) end
+function GetPitch()           return GetFreecamRotation().x      end
+function GetRoll()            return GetFreecamRotation().y      end
+function GetYaw()             return GetFreecamRotation().z      end
 
 --------------------------------------------------------------------------------
 
