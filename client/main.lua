@@ -193,8 +193,8 @@ function GetYaw()             return GetFreecamRotation().z      end
 
 Citizen.CreateThread(function()
   local function GetSpeedMultiplier()
-    local fastNormal = GetSmartControlNormal(controls.moveSlow)
-    local slowNormal = GetSmartControlNormal(controls.moveFast)
+    local fastNormal = GetSmartControlNormal(controls.moveFast)
+    local slowNormal = GetSmartControlNormal(controls.moveSlow)
 
     local base = config.baseMoveMultiplier
     local fast = 1 + ((config.fastMoveMultiplier - 1) * fastNormal)
