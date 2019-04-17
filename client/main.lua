@@ -21,6 +21,20 @@ local _internal_vecZ = nil
 
 --------------------------------------------------------------------------------
 
+local controls = {
+  mouseX = INPUT_LOOK_LR,
+  mouseY = INPUT_LOOK_UD,
+
+  moveX = INPUT_MOVE_LR,
+  moveY = INPUT_MOVE_UD,
+  moveZ = [INPUT_COVER, INPUT_MULTIPLAYER_INFO],
+
+  moveFast = INPUT_SPRINT,
+  moveSlow = INPUT_CHARACTER_WHEEL
+}
+
+--------------------------------------------------------------------------------
+
 local config = {
   --Camera
   fov = 45.0,
@@ -179,8 +193,8 @@ function GetYaw()             return GetFreecamRotation().z      end
 
 Citizen.CreateThread(function()
   local function GetSpeedMultiplier()
-    local fastNormal = GetDisabledControlNormal(0, INPUT_SPRINT)
-    local slowNormal = GetDisabledControlNormal(0, INPUT_CHARACTER_WHEEL)
+    local fastNormal = GetSmartControlNormal(controls.moveSlow)
+    local slowNormal = GetSmartControlNormal(controls.moveFast)
 
     local base = config.baseMoveMultiplier
     local fast = 1 + ((config.fastMoveMultiplier - 1) * fastNormal)
@@ -206,13 +220,13 @@ Citizen.CreateThread(function()
       local speedMultiplier = GetSpeedMultiplier() * frameMultiplier
 
       -- Get mouse input
-      local mouseX = GetDisabledControlNormal(0, INPUT_LOOK_LR)
-      local mouseY = GetDisabledControlNormal(0, INPUT_LOOK_UD)
+      local mouseX = GetSmartControlNormal(controls.mouseX)
+      local mouseY = GetSmartControlNormal(controls.mouseY)
 
       -- Get keyboard input
-      local moveWS = GetDisabledControlNormal(0, INPUT_MOVE_UD)
-      local moveAD = GetDisabledControlNormal(0, INPUT_MOVE_LR)
-      local moveQZ = GetDisabledControlNormalBetween(0, INPUT_COVER, INPUT_MULTIPLAYER_INFO)
+      local moveX = GetSmartControlNormal(controls.moveX)
+      local moveY = GetSmartControlNormal(controls.moveY)
+      local moveZ = GetSmartControlNormal(controls.moveZ)
 
       -- Calculate new rotation.
       local rotX = rot.x + (-mouseY * config.mouseSensitivityY)
@@ -220,9 +234,9 @@ Citizen.CreateThread(function()
       local rotY = 0.0
 
       -- Adjust position relative to camera rotation.
-      pos = pos + (vecX *  moveAD * speedMultiplier)
-      pos = pos + (vecY * -moveWS * speedMultiplier)
-      pos = pos + (vecZ *  moveQZ * speedMultiplier)
+      pos = pos + (vecX *  moveX * speedMultiplier)
+      pos = pos + (vecY * -moveY * speedMultiplier)
+      pos = pos + (vecZ *  moveZ * speedMultiplier)
 
       -- Adjust new rotation
       rot = vector3(rotX, rotY, rotZ)

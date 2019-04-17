@@ -9,11 +9,15 @@ function ClampCameraRotation(rotX, rotY, rotZ)
   return x, y, z
 end
 
-function GetDisabledControlNormalBetween(inputGroup, control1, control2)
-  local normal1 = GetDisabledControlNormal(inputGroup, control1)
-  local normal2 = GetDisabledControlNormal(inputGroup, control2)
-  return normal1 - normal2
-end
+function GetSmartControlNormal(control)
+    if type(control) == 'table' then
+      local normal1 = GetDisabledControlNormal(0, control[1])
+      local normal2 = GetDisabledControlNormal(0, control[2])
+      return normal1 - normal2
+    end
+
+    return GetDisabledControlNormal(0, control)
+  end
 
 function EulerToMatrix(rotX, rotY, rotZ)
   local radX = math.rad(rotX)
