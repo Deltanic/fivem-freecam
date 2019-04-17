@@ -2,6 +2,13 @@ function Clamp(x, min, max)
   return math.min(math.max(x, min), max)
 end
 
+function ClampCameraRotation(rotX, rotY, rotZ)
+  local x = Clamp(rotX, -90.0, 90.0)
+  local y = rotY % 360
+  local z = rotZ % 360
+  return x, y, z
+end
+
 function GetDisabledControlNormalBetween(inputGroup, control1, control2)
   local normal1 = GetDisabledControlNormal(inputGroup, control1)
   local normal2 = GetDisabledControlNormal(inputGroup, control2)

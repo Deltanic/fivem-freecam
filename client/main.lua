@@ -85,13 +85,11 @@ local function GetFreecamRotation()
 end
 
 local function SetFreecamRotation(x, y, z)
-  local x = Clamp(x, -90.0, 90.0)
-  local y = y % 360
-  local z = z % 360
-  local rot = vector3(x, y, z)
-  local vecX, vecY, vecZ = EulerToMatrix(x, y, z)
+  local rotX, rotY, rotZ = ClampCameraRotation(x, y, z)
+  local vecX, vecY, vecZ = EulerToMatrix(rotX, rotY, rotZ)
+  local rot = vector3(rotX, rotY, rotZ)
 
-  LockMinimapAngle(math.floor(z))
+  LockMinimapAngle(math.floor(rotZ))
   SetCamRot(_internal_camera, rot)
 
   _internal_rot  = rot
