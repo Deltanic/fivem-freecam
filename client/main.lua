@@ -233,9 +233,9 @@ Citizen.CreateThread(function()
       SetFreecamRotation(rot.x, rot.y, rot.z)
     end
 
-    -- Trigger an update event. Resources depending on the freecam position can
+    -- Trigger a tick event. Resources depending on the freecam position can
     -- make use of this event.
-    TriggerEvent('freecam:onFreecamUpdate')
+    TriggerEvent('freecam:onTick')
   end
 
   while true do
