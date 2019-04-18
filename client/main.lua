@@ -50,16 +50,28 @@ local config = {
 
   -- On enable/disable
   enableEasing = true,
-  easingDuration = 1000
+  easingDuration = 1000,
+
+  -- Keep position/rotation
+  keepPosition = false,
+  keepRotation = false
 }
 
 --------------------------------------------------------------------------------
 
 local function GetInitialCameraPosition()
+  if keepPosition and _internal_pos then
+    return _internal_pos
+  end
+
   return GetGameplayCamCoord()
 end
 
 local function GetInitialCameraRotation()
+  if keepRotation and _internal_rot then
+    return _internal_rot
+  end
+
   local rot = GetGameplayCamRot()
   return vector3(rot.x, 0.0, rot.z)
 end
