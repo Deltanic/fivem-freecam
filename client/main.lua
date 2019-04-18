@@ -55,6 +55,17 @@ local config = {
 
 --------------------------------------------------------------------------------
 
+local function GetInitialCameraPosition()
+  return GetGameplayCamCoord()
+end
+
+local function GetInitialCameraRotation()
+  local rot = GetGameplayCamRot()
+  return vector3(rot.x, 0.0, rot.z)
+end
+
+--------------------------------------------------------------------------------
+
 local function GetFreecamConfig(key)
   return config[key]
 end
@@ -150,8 +161,8 @@ local function SetFreecamActive(active)
   end
 
   if active then
-    local pos = GetGameplayCamCoord()
-    local rot = GetGameplayCamRot()
+    local pos = GetInitialCameraPosition()
+    local rot = GetInitialCameraRotation()
 
     _internal_camera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
 
@@ -231,7 +242,7 @@ Citizen.CreateThread(function()
       -- Calculate new rotation.
       local rotX = rot.x + (-mouseY * config.mouseSensitivityY)
       local rotZ = rot.z + (-mouseX * config.mouseSensitivityX)
-      local rotY = 0.0
+      local rotY = rot.y
 
       -- Adjust position relative to camera rotation.
       pos = pos + (vecX *  moveX * speedMultiplier)
