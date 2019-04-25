@@ -76,7 +76,11 @@ local config = {
 
   -- On enable/disable
   enableEasing = true,
-  easingDuration = 1000
+  easingDuration = 1000,
+
+  -- Keep position/rotation
+  keepPosition = false,
+  keepRotation = false
 }
 ```
 

@@ -60,7 +60,7 @@ local config = {
 --------------------------------------------------------------------------------
 
 local function GetInitialCameraPosition()
-  if keepPosition and _internal_pos then
+  if config.keepPosition and _internal_pos then
     return _internal_pos
   end
 
@@ -68,7 +68,7 @@ local function GetInitialCameraPosition()
 end
 
 local function GetInitialCameraRotation()
-  if keepRotation and _internal_rot then
+  if config.keepRotation and _internal_rot then
     return _internal_rot
   end
 
