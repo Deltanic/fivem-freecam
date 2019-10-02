@@ -1,3 +1,15 @@
+function table.copy(x)
+  local copy = {}
+  for k, v in pairs(x) do
+    if type(v) == 'table' then
+        copy[k] = table.copy(v)
+    else
+        copy[k] = v
+    end
+  end
+  return copy
+end
+
 function Clamp(x, min, max)
   return math.min(math.max(x, min), max)
 end

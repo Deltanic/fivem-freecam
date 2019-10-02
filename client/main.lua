@@ -11,6 +11,114 @@ local INPUT_PARACHUTE_BRAKE_RIGHT = 153
 
 --------------------------------------------------------------------------------
 
+local DEFAULT_CONTROLS = {
+  -- Rotation
+  lookX = INPUT_LOOK_LR,
+  lookY = INPUT_LOOK_UD,
+
+  -- Position
+  moveX = INPUT_MOVE_LR,
+  moveY = INPUT_MOVE_UD,
+  moveZ = { INPUT_PARACHUTE_BRAKE_LEFT, INPUT_PARACHUTE_BRAKE_RIGHT },
+
+  -- Multiplier
+  moveFast = INPUT_SPRINT,
+  moveSlow = INPUT_CHARACTER_WHEEL
+}
+
+-- TODO: Table protection + value assertions.
+local CONTROLS_MT = {
+
+}
+
+--------------------------------------------------------------------------------
+
+local DEFAULT_CONFIG = {
+  -- Rotation
+  lookSensitivityX = 5,
+  lookSensitivityY = 5,
+
+  -- Position
+  baseMoveMultiplier = 1,
+  fastMoveMultiplier = 10,
+  slowMoveMultiplier = 10,
+}
+
+-- TODO: Table protection + value assertions.
+local CONFIG_MT = {
+
+}
+
+--------------------------------------------------------------------------------
+
+local DEFAULT_SETTINGS = {
+  --Camera
+  fov = 45.0,
+
+  -- On enable/disable
+  enableEasing = true,
+  easingDuration = 1000,
+
+  -- Keep position/rotation
+  keepPosition = false,
+  keepRotation = false
+}
+
+-- TODO: Table protection + value assertions.
+local SETTINGS_MT = {
+
+}
+
+--------------------------------------------------------------------------------
+
+local KEYBOARD_CONTROLS = table.copy(DEFAULT_CONTROLS)
+local GAMEPAD_CONTROLS = table.copy(DEFAULT_CONTROLS)
+
+-- Swap up/down movement (LB for down, RB for up)
+GAMEPAD_CONTROLS.moveZ[1] = INPUT_PARACHUTE_BRAKE_LEFT
+GAMEPAD_CONTROLS.moveZ[2] = INPUT_PARACHUTE_BRAKE_RIGHT
+
+-- Use LT and RT for speed
+GAMEPAD_CONTROLS.moveFast = INPUT_VEH_ACCELERATE
+GAMEPAD_CONTROLS.moveSlow = INPUT_VEH_BRAKE
+
+setmetatable(KEYBOARD_CONTROLS, CONTROLS_MT)
+setmetatable(GAMEPAD_CONTROLS, CONTROLS_MT)
+
+--------------------------------------------------------------------------------
+
+local KEYBOARD_CONFIG = table.copy(DEFAULT_CONFIG)
+local GAMEPAD_CONFIG = table.copy(DEFAULT_CONFIG)
+
+-- Gamepad sensitivity can be reduced by default.
+GAMEPAD_CONFIG.lookSensitivityX = 2
+GAMEPAD_CONFIG.lookSensitivityY = 2
+
+setmetatable(KEYBOARD_CONFIG, CONFIG_MT)
+setmetatable(GAMEPAD_CONFIG, CONFIG_MT)
+
+--------------------------------------------------------------------------------
+
+local CAMERA_SETTINGS = table.copy(DEFAULT_SETTINGS)
+setmetatable(CAMERA_SETTINGS, SETTINGS_MT)
+
+--------------------------------------------------------------------------------
+
+local function CreateGamepadMetatable(keyboard, gamepad)
+  return setmetatable({}, {
+    __index = function (t, k)
+      local src = IsGamepadControl() and gamepad or keyboard
+      return src[k]
+    end
+  })
+end
+
+-- For convenience.
+local CONTROLS = CreateGamepadMetatable(KEYBOARD_CONTROLS, GAMEPAD_CONTROLS)
+local CONFIG   = CreateGamepadMetatable(KEYBOARD_CONFIG,   GAMEPAD_CONFIG)
+
+--------------------------------------------------------------------------------
+
 local _internal_camera = nil
 local _internal_isFrozen = false
 
@@ -23,58 +131,8 @@ local _internal_vecZ = nil
 
 --------------------------------------------------------------------------------
 
-local KEYBOARD_CONTROLS = {
-  lookX = INPUT_LOOK_LR,
-  lookY = INPUT_LOOK_UD,
-
-  moveX = INPUT_MOVE_LR,
-  moveY = INPUT_MOVE_UD,
-  moveZ = { INPUT_PARACHUTE_BRAKE_LEFT, INPUT_PARACHUTE_BRAKE_RIGHT },
-
-  moveFast = INPUT_SPRINT,
-  moveSlow = INPUT_CHARACTER_WHEEL
-}
-
-local GAMEPAD_CONTROLS = {
-  lookX = INPUT_LOOK_LR,
-  lookY = INPUT_LOOK_UD,
-
-  moveX = INPUT_MOVE_LR,
-  moveY = INPUT_MOVE_UD,
-  moveZ = { INPUT_PARACHUTE_BRAKE_RIGHT, INPUT_PARACHUTE_BRAKE_LEFT },
-
-  moveFast = INPUT_VEH_ACCELERATE,
-  moveSlow = INPUT_VEH_BRAKE
-}
-
---------------------------------------------------------------------------------
-
-local config = {
-  --Camera
-  fov = 45.0,
-
-  -- Rotation
-  lookSensitivityX = 5,
-  lookSensitivityY = 5,
-
-  -- Position
-  baseMoveMultiplier = 1,
-  fastMoveMultiplier = 10,
-  slowMoveMultiplier = 10,
-
-  -- On enable/disable
-  enableEasing = true,
-  easingDuration = 1000,
-
-  -- Keep position/rotation
-  keepPosition = false,
-  keepRotation = false
-}
-
---------------------------------------------------------------------------------
-
 local function GetInitialCameraPosition()
-  if config.keepPosition and _internal_pos then
+  if CAMERA_SETTINGS.keepPosition and _internal_pos then
     return _internal_pos
   end
 
@@ -82,22 +140,12 @@ local function GetInitialCameraPosition()
 end
 
 local function GetInitialCameraRotation()
-  if config.keepRotation and _internal_rot then
+  if CAMERA_SETTINGS.keepRotation and _internal_rot then
     return _internal_rot
   end
 
   local rot = GetGameplayCamRot()
   return vector3(rot.x, 0.0, rot.z)
-end
-
---------------------------------------------------------------------------------
-
-local function GetFreecamConfig(key)
-  return config[key]
-end
-
-local function SetFreecamConfig(key, value)
-  config[key] = value
 end
 
 --------------------------------------------------------------------------------
@@ -192,7 +240,7 @@ local function SetFreecamActive(active)
 
     _internal_camera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
 
-    SetFreecamFov(config.fov)
+    SetFreecamFov(CAMERA_SETTINGS.fov)
     SetFreecamPosition(pos.x, pos.y, pos.z)
     SetFreecamRotation(rot.x, rot.y, rot.z)
   else
@@ -203,15 +251,27 @@ local function SetFreecamActive(active)
   end
 
   SetPlayerControl(PlayerId(), not active)
-  RenderScriptCams(active, config.enableEasing, config.easingDuration)
+  RenderScriptCams(active, CAMERA_SETTINGS.enableEasing, CAMERA_SETTINGS.easingDuration)
 end
+
+--------------------------------------------------------------------------------
+
+function GetKeyboardControl(key) return KEYBOARD_CONTROLS[key]  end
+function GetGamepadControl (key) return GAMEPAD_CONTROLS[key]   end
+function GetKeyboardConfig (key) return KEYBOARD_CONFIG[key]    end
+function GetGamepadConfig  (key) return GAMEPAD_CONFIG[key]     end
+function GetCameraSetting  (key) return CAMERA_SETTINGS[key]    end
+
+function SetKeyboardControl(key, value) KEYBOARD_CONTROLS[key] = value end
+function SetGamepadControl (key, value) GAMEPAD_CONTROLS[key]  = value end
+function SetKeyboardConfig (key, value) KEYBOARD_CONFIG[key]   = value end
+function SetGamepadConfig  (key, value) GAMEPAD_CONFIG[key]    = value end
+function SetCameraSetting  (key, value) CAMERA_SETTINGS[key]   = value end
 
 --------------------------------------------------------------------------------
 
 function IsActive()           return IsFreecamActive()           end
 function SetActive(active)    return SetFreecamActive(active)    end
-function GetConfig(key)       return GetFreecamConfig(key)       end
-function SetConfig(key, val)  return SetFreecamConfig(key, val)  end
 function IsFrozen()           return IsFreecamFrozen()           end
 function SetFrozen(frozen)    return SetFreecamFrozen(frozen)    end
 function GetFov()             return GetFreecamFov()             end
@@ -229,23 +289,18 @@ function GetYaw()             return GetFreecamRotation().z      end
 --------------------------------------------------------------------------------
 
 Citizen.CreateThread(function()
-  local function GetControls()
-    return IsGamepadControl() then
-      return GAMEPAD_CONTROLS
-    end
+  local function GetSpeedMultiplier()
+    local fastNormal = GetSmartControlNormal(CONTROLS.moveFast)
+    local slowNormal = GetSmartControlNormal(CONTROLS.moveSlow)
 
-    return KEYBOARD_CONTROLS
-  end
+    local baseSpeed = CONFIG.baseMoveMultiplier
+    local fastSpeed = 1 + ((CONFIG.fastMoveMultiplier - 1) * fastNormal)
+    local slowSpeed = 1 + ((CONFIG.slowMoveMultiplier - 1) * slowNormal)
 
-  local function GetSpeedMultiplier(controls)
-    local fastNormal = GetSmartControlNormal(controls.moveFast)
-    local slowNormal = GetSmartControlNormal(controls.moveSlow)
+    local frameMultiplier = GetFrameTime() * 60
+    local speedMultiplier = baseSpeed * fastSpeed / slowSpeed
 
-    local base = config.baseMoveMultiplier
-    local fast = 1 + ((config.fastMoveMultiplier - 1) * fastNormal)
-    local slow = 1 + ((config.slowMoveMultiplier - 1) * slowNormal)
-
-    return (base * fast / slow) * (GetFrameTime() * 60)
+    return speedMultiplier * frameMultiplier
   end
 
   local function CameraLoop()
@@ -254,8 +309,6 @@ Citizen.CreateThread(function()
     end
 
     if not IsFreecamFrozen() then
-      local controls = GetControls()
-
       local vecX, vecY = GetFreecamMatrix()
       local vecZ = vector3(0, 0, 1)
 
@@ -263,20 +316,20 @@ Citizen.CreateThread(function()
       local rot = GetFreecamRotation()
 
       -- Get speed multiplier for movement
-      local speedMultiplier = GetSpeedMultiplier(controls)
+      local speedMultiplier = GetSpeedMultiplier()
 
       -- Get rotation input
-      local lookX = GetSmartControlNormal(controls.lookX)
-      local lookY = GetSmartControlNormal(controls.lookY)
+      local lookX = GetSmartControlNormal(CONTROLS.lookX)
+      local lookY = GetSmartControlNormal(CONTROLS.lookY)
 
       -- Get position input
-      local moveX = GetSmartControlNormal(controls.moveX)
-      local moveY = GetSmartControlNormal(controls.moveY)
-      local moveZ = GetSmartControlNormal(controls.moveZ)
+      local moveX = GetSmartControlNormal(CONTROLS.moveX)
+      local moveY = GetSmartControlNormal(CONTROLS.moveY)
+      local moveZ = GetSmartControlNormal(CONTROLS.moveZ)
 
       -- Calculate new rotation.
-      local rotX = rot.x + (-lookY * config.lookSensitivityY)
-      local rotZ = rot.z + (-lookX * config.lookSensitivityX)
+      local rotX = rot.x + (-lookY * CONFIG.lookSensitivityY)
+      local rotZ = rot.z + (-lookX * CONFIG.lookSensitivityX)
       local rotY = rot.y
 
       -- Adjust position relative to camera rotation.
