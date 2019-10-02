@@ -9,6 +9,10 @@ function ClampCameraRotation(rotX, rotY, rotZ)
   return x, y, z
 end
 
+function IsGamepadControl()
+  return not IsInputDisabled(2)
+end
+
 function GetSmartControlNormal(control)
     if type(control) == 'table' then
       local normal1 = GetDisabledControlNormal(0, control[1])

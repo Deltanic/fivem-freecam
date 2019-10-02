@@ -1,11 +1,13 @@
-local INPUT_SPRINT = 21
-local INPUT_CHARACTER_WHEEL = 19
 local INPUT_LOOK_LR = 1
 local INPUT_LOOK_UD = 2
-local INPUT_COVER = 44
-local INPUT_MULTIPLAYER_INFO = 20
+local INPUT_CHARACTER_WHEEL = 19
+local INPUT_SPRINT = 21
 local INPUT_MOVE_UD = 31
 local INPUT_MOVE_LR = 30
+local INPUT_VEH_ACCELERATE = 71
+local INPUT_VEH_BRAKE = 72
+local INPUT_PARACHUTE_BRAKE_LEFT = 152
+local INPUT_PARACHUTE_BRAKE_RIGHT = 153
 
 --------------------------------------------------------------------------------
 
@@ -21,16 +23,28 @@ local _internal_vecZ = nil
 
 --------------------------------------------------------------------------------
 
-local controls = {
-  mouseX = INPUT_LOOK_LR,
-  mouseY = INPUT_LOOK_UD,
+local KEYBOARD_CONTROLS = {
+  lookX = INPUT_LOOK_LR,
+  lookY = INPUT_LOOK_UD,
 
   moveX = INPUT_MOVE_LR,
   moveY = INPUT_MOVE_UD,
-  moveZ = { INPUT_COVER, INPUT_MULTIPLAYER_INFO },
+  moveZ = { INPUT_PARACHUTE_BRAKE_LEFT, INPUT_PARACHUTE_BRAKE_RIGHT },
 
   moveFast = INPUT_SPRINT,
   moveSlow = INPUT_CHARACTER_WHEEL
+}
+
+local GAMEPAD_CONTROLS = {
+  lookX = INPUT_LOOK_LR,
+  lookY = INPUT_LOOK_UD,
+
+  moveX = INPUT_MOVE_LR,
+  moveY = INPUT_MOVE_UD,
+  moveZ = { INPUT_PARACHUTE_BRAKE_RIGHT, INPUT_PARACHUTE_BRAKE_LEFT },
+
+  moveFast = INPUT_VEH_ACCELERATE,
+  moveSlow = INPUT_VEH_BRAKE
 }
 
 --------------------------------------------------------------------------------
@@ -39,11 +53,11 @@ local config = {
   --Camera
   fov = 45.0,
 
-  -- Mouse
-  mouseSensitivityX = 5,
-  mouseSensitivityY = 5,
+  -- Rotation
+  lookSensitivityX = 5,
+  lookSensitivityY = 5,
 
-  -- Movement
+  -- Position
   baseMoveMultiplier = 1,
   fastMoveMultiplier = 10,
   slowMoveMultiplier = 10,
@@ -215,7 +229,15 @@ function GetYaw()             return GetFreecamRotation().z      end
 --------------------------------------------------------------------------------
 
 Citizen.CreateThread(function()
-  local function GetSpeedMultiplier()
+  local function GetControls()
+    return IsGamepadControl() then
+      return GAMEPAD_CONTROLS
+    end
+
+    return KEYBOARD_CONTROLS
+  end
+
+  local function GetSpeedMultiplier(controls)
     local fastNormal = GetSmartControlNormal(controls.moveFast)
     local slowNormal = GetSmartControlNormal(controls.moveSlow)
 
@@ -223,7 +245,7 @@ Citizen.CreateThread(function()
     local fast = 1 + ((config.fastMoveMultiplier - 1) * fastNormal)
     local slow = 1 + ((config.slowMoveMultiplier - 1) * slowNormal)
 
-    return base * fast / slow
+    return (base * fast / slow) * (GetFrameTime() * 60)
   end
 
   local function CameraLoop()
@@ -232,6 +254,8 @@ Citizen.CreateThread(function()
     end
 
     if not IsFreecamFrozen() then
+      local controls = GetControls()
+
       local vecX, vecY = GetFreecamMatrix()
       local vecZ = vector3(0, 0, 1)
 
@@ -239,21 +263,20 @@ Citizen.CreateThread(function()
       local rot = GetFreecamRotation()
 
       -- Get speed multiplier for movement
-      local frameMultiplier = GetFrameTime() * 60
-      local speedMultiplier = GetSpeedMultiplier() * frameMultiplier
+      local speedMultiplier = GetSpeedMultiplier(controls)
 
-      -- Get mouse input
-      local mouseX = GetSmartControlNormal(controls.mouseX)
-      local mouseY = GetSmartControlNormal(controls.mouseY)
+      -- Get rotation input
+      local lookX = GetSmartControlNormal(controls.lookX)
+      local lookY = GetSmartControlNormal(controls.lookY)
 
-      -- Get keyboard input
+      -- Get position input
       local moveX = GetSmartControlNormal(controls.moveX)
       local moveY = GetSmartControlNormal(controls.moveY)
       local moveZ = GetSmartControlNormal(controls.moveZ)
 
       -- Calculate new rotation.
-      local rotX = rot.x + (-mouseY * config.mouseSensitivityY)
-      local rotZ = rot.z + (-mouseX * config.mouseSensitivityX)
+      local rotX = rot.x + (-lookY * config.lookSensitivityY)
+      local rotZ = rot.z + (-lookX * config.lookSensitivityX)
       local rotY = rot.y
 
       -- Adjust position relative to camera rotation.
