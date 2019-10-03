@@ -10,6 +10,26 @@ function table.copy(x)
   return copy
 end
 
+function protect(t)
+  local fn = function (_, k)
+    error('Key `' .. tostring(k) .. '` is not supported.')
+  end
+
+  return setmetatable(t, {
+    __index = fn,
+    __newindex = fn
+  })
+end
+
+function CreateGamepadMetatable(keyboard, gamepad)
+  return setmetatable({}, {
+    __index = function (t, k)
+      local src = IsGamepadControl() and gamepad or keyboard
+      return src[k]
+    end
+  })
+end
+
 function Clamp(x, min, max)
   return math.min(math.max(x, min), max)
 end
