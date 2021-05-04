@@ -16,8 +16,8 @@ Features
 Controls
 --------
 
-Default controls for the freecam. Keep in mind controls are mapped to GTA,
-so this may be different depending on your game settings or keyboard layout.
+These are the default controls for the freecam. Keep in mind controls may be
+different depending on your game settings or keyboard layout.
 
 > Controls can be customized by [configuring the freecam](docs/CONFIGURING.md#control-mapping).
 
@@ -42,15 +42,15 @@ so this may be different depending on your game settings or keyboard layout.
 Usage
 -----
 
-In your `__resource.lua`:
+In your `fxmanifest.lua`:
 ```lua
-dependency 'freecam'
+dependency 'fivem-freecam'
 client_script 'script.lua'
 ```
 
 In your `script.lua`:
 ```lua
-local Freecam = exports.freecam
+local Freecam = exports['fivem-freecam']
 
 -- Toggles the freecam by pressing F5
 Citizen.CreateThread(function ()

@@ -1,4 +1,9 @@
-resource_manifest_version '44febabe-d386-4d18-afbe-5e627f4af937'
+fx_version 'cerulean'
+games { 'gta5' }
+
+author 'Deltanic'
+description 'Simple freecam API for FiveM.'
+version '1.0.0'
 
 client_script 'client/utils.lua'
 client_script 'client/config.lua'
