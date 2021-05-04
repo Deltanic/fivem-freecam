@@ -8,7 +8,6 @@ Called upon entering the freecam after `Freecam:SetActive(true)`. Useful to
 detect state changes of the freecam.
 
 ```lua
-local Freecam = exports.freecam
 AddEventHandler('freecam:onEnter', function ()
   -- Plays an effect upon entering the freecam.
   StartScreenEffect('SuccessNeutral', 500, false)
@@ -23,7 +22,6 @@ Called upon exiting the freecam after `Freecam:SetActive(false)`. Useful to
 detect state changes of the freecam.
 
 ```lua
-local Freecam = exports.freecam
 AddEventHandler('freecam:onExit', function ()
   -- Plays an effect upon exiting the freecam.
   StartScreenEffect('SuccessNeutral', 500, false)
@@ -41,9 +39,10 @@ in sync. Not called when the freecam is inactive.
 No values are passed to this event.
 
 ```lua
-local Freecam = exports.freecam
+local Freecam = exports['fivem-freecam']
 AddEventHandler('freecam:onTick', function ()
   -- Gets the current target position of the freecam.
+  -- You could attach the player to this, or an object.
   local target = Freecam:GetTarget(50)
   print(target)
 end)
