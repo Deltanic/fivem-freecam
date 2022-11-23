@@ -4,8 +4,8 @@ local CONTROLS = _G.CONTROL_MAPPING
 -------------------------------------------------------------------------------
 
 local function GetSpeedMultiplier()
-  local fastNormal = GetSmartControlNormal(CONTROLS.MOVE_FAST)
-  local slowNormal = GetSmartControlNormal(CONTROLS.MOVE_SLOW)
+  local fastNormal = GetNormalizedControlNormal(CONTROLS.MOVE_FAST)
+  local slowNormal = GetNormalizedControlNormal(CONTROLS.MOVE_SLOW)
 
   local baseSpeed = SETTINGS.BASE_MOVE_MULTIPLIER
   local fastSpeed = 1 + ((SETTINGS.FAST_MOVE_MULTIPLIER - 1) * fastNormal)
@@ -33,13 +33,13 @@ local function UpdateCamera()
     local speedMultiplier = GetSpeedMultiplier()
 
     -- Get rotation input
-    local lookX = GetSmartControlUnboundNormal(CONTROLS.LOOK_X)
-    local lookY = GetSmartControlUnboundNormal(CONTROLS.LOOK_Y)
+    local lookX = GetNormalizedControlUnboundNormal(CONTROLS.LOOK_X)
+    local lookY = GetNormalizedControlUnboundNormal(CONTROLS.LOOK_Y)
 
     -- Get position input
-    local moveX = GetSmartControlNormal(CONTROLS.MOVE_X)
-    local moveY = GetSmartControlNormal(CONTROLS.MOVE_Y)
-    local moveZ = GetSmartControlNormal(CONTROLS.MOVE_Z)
+    local moveX = GetNormalizedControlNormal(CONTROLS.MOVE_X)
+    local moveY = GetNormalizedControlNormal(CONTROLS.MOVE_Y)
+    local moveZ = GetNormalizedControlNormal(CONTROLS.MOVE_Z)
 
     -- Calculate new rotation.
     local rotX = rot.x + (-lookY * SETTINGS.LOOK_SENSITIVITY_X)
