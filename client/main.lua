@@ -33,8 +33,8 @@ local function UpdateCamera()
     local speedMultiplier = GetSpeedMultiplier()
 
     -- Get rotation input
-    local lookX = GetSmartControlNormal(CONTROLS.LOOK_X)
-    local lookY = GetSmartControlNormal(CONTROLS.LOOK_Y)
+    local lookX = GetSmartControlUnboundNormal(CONTROLS.LOOK_X)
+    local lookY = GetSmartControlUnboundNormal(CONTROLS.LOOK_Y)
 
     -- Get position input
     local moveX = GetSmartControlNormal(CONTROLS.MOVE_X)
